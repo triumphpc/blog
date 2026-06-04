@@ -1,0 +1,17 @@
+{{ if .Page.HasShortcode "mermaid" }}
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#1a1b26',
+      primaryTextColor: '#c0caf5',
+      primaryBorderColor: '#3d59a1',
+      lineColor: '#7aa2f7',
+      secondaryColor: '#24283b',
+      tertiaryColor: '#1a1b26'
+    }
+  });
+</script>
+{{ end }}

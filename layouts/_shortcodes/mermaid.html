@@ -1,0 +1,3 @@
+{{ if .Get "align" }}<div align="{{ .Get "align" }}">{{ end }}<pre class="mermaid">
+{{ .Inner }}
+</pre>{{ if .Get "align" }}</div>{{ end }}

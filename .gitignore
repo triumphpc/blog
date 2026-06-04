@@ -1,0 +1,30 @@
+# GitHub Actions
+.github/
+
+# Hugo
+/public/
+/resources/_gen/
+/assets/jsconfig.json
+hugo_stats.json
+
+# Hugo Modules
+_vendor/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go
+go.sum
+
+# OpenSpec
+openspec/
+
+# opencode
+.opencode/

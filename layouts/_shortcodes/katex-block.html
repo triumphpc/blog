@@ -1,0 +1,15 @@
+<katex-element display-mode>{{ .Inner }}</katex-element>
+<script>
+  if (typeof renderKatex === 'undefined') {
+    var renderKatex = function() {
+      document.querySelectorAll('katex-element').forEach(function(el) {
+        var tex = el.textContent;
+        var isDisplay = el.hasAttribute('display-mode');
+        katex.render(tex, el, { displayMode: isDisplay, throwOnError: false });
+      });
+    };
+    if (typeof katex !== 'undefined') {
+      renderKatex();
+    }
+  }
+</script>
