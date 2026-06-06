@@ -4,7 +4,7 @@
     s.src = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
     s.onload = () => {
       mermaid.initialize({
-        startOnLoad: true,
+        startOnLoad: false,
         look: 'handDrawn',
         handDrawnSeed: 42,
         theme: 'base',
@@ -21,6 +21,7 @@
           textColor: '#c0caf5'
         }
       });
+      mermaid.run({ querySelector: '.mermaid' });
     };
     document.head.appendChild(s);
   }
