@@ -1,5 +1,6 @@
-# GitHub Actions
-.github/
+# GitHub Actions (keep workflows, ignore rest)
+.github/*
+!.github/workflows/
 
 # Hugo
 /public/
