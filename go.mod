@@ -1,4 +1,4 @@
-module github.com/svrulin/blog
+module github.com/triumumphc/blog
 
 go 1.24.4
 

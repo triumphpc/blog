@@ -4,19 +4,31 @@ layout: "simple"
 draft: false
 ---
 
-Hi, I'm **Sergey Vrulin** — a software engineer focused on **Go**, **LLM**, and **AI Agents**.
+Hi, I'm **Sebastian PE** — a full-stack software engineer with **15+ years** of experience building web products, backend systems, and developer tools.
 
-I build production backend services, design agent architectures, and explore how large language models can augment engineering workflows.
+## What I Do
 
-## Interests
+I work across the entire product lifecycle — from architecture and prototyping to launch and operation. My current focus:
 
-- **Go** — concurrent systems, microservices, performance optimization
-- **LLM & AI Agents** — prompt engineering, RAG pipelines, agentic orchestration
+- **Go** — high-performance backend services, concurrent systems, microservices
+- **AI & LLM Agents** — prompt engineering, RAG pipelines, agentic orchestration
+- **PHP & JavaScript** — full-stack web development, API design
 - **DevOps** — CI/CD, observability, infrastructure as code
 
-## Contact
+I've built e-commerce platforms, web portals, CRM and ERP systems, and business tools. I also have extensive experience as a team lead and head of development, managing engineering teams and designing software architecture.
 
-- GitHub: [svrulin](https://github.com/svrulin)
+## Teaching & Community
+
+I share my knowledge through courses and content:
+
+- **Udemy** — [Design Patterns](https://www.udemy.com/course/design-patterns-cj/), [Domain-Driven Design for Junior](https://www.udemy.com/course/domain-driven-design-ddd/)
+- **YouTube** — [channel](https://www.youtube.com/channel/UCbWJXWU6jqOB9t1uaReymAA) (architecture, methodologies, dev tools)
+- **Habr** — [blog posts](https://habr.com/ru/users/triumphpc/posts/)
+
+## Connect
+
+- **GitHub**: [triumphpc](https://github.com/triumphpc)
+- **Udemy**: [instructor profile](https://www.udemy.com/user/sergei-1146/)
 
 ---
 

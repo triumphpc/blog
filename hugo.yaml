@@ -1,22 +1,87 @@
-baseURL: "https://svrulin.github.io/"
-title: "svrulin — Go, AI & Engineering"
-paginate: 5
+baseURL: "https://triumphpc.github.io/"
+defaultContentLanguage: en
+pagination:
+  pagerSize: 5
 
 enableRobotsTXT: true
 buildDrafts: false
-buildFuture: false
+buildFuture: true
 buildExpired: false
 
 minify:
   disableXML: true
   minifyOutput: true
 
+languages:
+  en:
+    languageName: "English"
+    weight: 1
+    title: "Sebastian PE — Go, AI & Engineering"
+    params:
+      description: "Technical blog about Go, LLM, AI Agents and software engineering"
+      homeInfoParams:
+        Title: "Hi there 👋"
+        Content: Welcome to my blog about Go, LLM, AI Agents and engineering.
+    menu:
+      main:
+        - identifier: posts
+          name: Posts
+          url: /posts/
+          weight: 5
+        - identifier: tags
+          name: Tags
+          url: /tags/
+          weight: 10
+        - identifier: archives
+          name: Archive
+          url: /archives/
+          weight: 15
+        - identifier: about
+          name: About
+          url: /pages/about/
+          weight: 20
+        - identifier: projects
+          name: Projects
+          url: /pages/projects/
+          weight: 25
+  ru:
+    languageName: "Русский"
+    weight: 2
+    title: "Sebastian PE — Go, AI и инженерия"
+    params:
+      description: "Технический блог о Go, LLM, AI-агентах и инженерии"
+      homeInfoParams:
+        Title: "Привет 👋"
+        Content: Блог о Go, LLM, AI-агентах и инженерии.
+    menu:
+      main:
+        - identifier: posts
+          name: Посты
+          url: /posts/
+          weight: 5
+        - identifier: tags
+          name: Теги
+          url: /tags/
+          weight: 10
+        - identifier: archives
+          name: Архив
+          url: /archives/
+          weight: 15
+        - identifier: about
+          name: Обо мне
+          url: /pages/about/
+          weight: 20
+        - identifier: projects
+          name: Проекты
+          url: /pages/projects/
+          weight: 25
+
 params:
+  mainSections:
+    - posts
   env: production
-  title: "svrulin — Go, AI & Engineering"
-  description: "Technical blog about Go, LLM, AI Agents and software engineering"
   keywords: [Blog, Go, LLM, AI, Agents, Engineering]
-  author: Sergey Vrulin
+  author: Sebastian PE
   images: ["<link or path of image for opengraph, twitter-cards>"]
   DateFormat: "January 2, 2006"
   defaultTheme: dark
@@ -43,17 +108,13 @@ params:
     disableHLJS: true
 
   label:
-    text: "svrulin"
+    text: "Sebastian PE"
     icon: /apple-touch-icon.png
     iconHeight: 35
 
-  homeInfoParams:
-    Title: "Hi there \U0001F44B"
-    Content: Welcome to my blog about Go, LLM, AI Agents and engineering.
-
   socialIcons:
     - name: github
-      url: "https://github.com/svrulin"
+      url: "https://github.com/triumphpc"
 
   cover:
     hidden: true
@@ -61,7 +122,7 @@ params:
     hiddenInSingle: true
 
   editPost:
-    URL: "https://github.com/svrulin/blog/content"
+    URL: "https://github.com/triumphpc/blog/content"
     Text: "Suggest Changes"
     appendFilePath: true
 
@@ -80,29 +141,6 @@ outputs:
     - HTML
     - RSS
     - JSON
-
-menu:
-  main:
-    - identifier: posts
-      name: Posts
-      url: /posts/
-      weight: 5
-    - identifier: tags
-      name: Tags
-      url: /tags/
-      weight: 10
-    - identifier: archives
-      name: Archive
-      url: /archives/
-      weight: 15
-    - identifier: about
-      name: About
-      url: /pages/about/
-      weight: 20
-    - identifier: projects
-      name: Projects
-      url: /pages/projects/
-      weight: 25
 
 pygmentsUseClasses: true
 
