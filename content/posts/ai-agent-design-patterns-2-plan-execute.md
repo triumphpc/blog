@@ -490,3 +490,7 @@ Discussion welcome — comments on the site or [GitHub Issues](https://github.co
 ### Architecture guides
 
 - [AI agent design patterns — Microsoft Azure Architecture Center](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns) — complexity hierarchy, orchestration patterns, production recommendations
+
+---
+
+**Next article:** [AI Agent Design Patterns. Part 3: Reflexion Pattern]({{< ref "ai-agent-design-patterns-3-reflexion" >}}) — ReAct + self-evaluation: the agent learns from its own mistakes through verbal reinforcement and episodic memory.

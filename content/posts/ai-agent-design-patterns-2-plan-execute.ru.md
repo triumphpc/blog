@@ -490,3 +490,7 @@ Plan-and-Execute — это средний уровень сложности м�
 ### Архитектурные руководства
 
 - [AI agent design patterns — Microsoft Azure Architecture Center](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns) — иерархия сложности, паттерны оркестрации, production-рекомендации
+
+---
+
+**Следующая статья:** [Шаблоны проектирования AI-агентов. Часть 3: Reflexion Pattern]({{< ref "ai-agent-design-patterns-3-reflexion" >}}) — ReAct + самооценка: агент учится на собственных ошибках через вербальное подкрепление и эпизодическую память.

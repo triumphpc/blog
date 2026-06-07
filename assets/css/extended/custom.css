@@ -1,67 +1,41 @@
-:root {
-  --primary: #7aa2f7;
-  --bg: #1a1b26;
-  --surface: #24283b;
-  --text: #c0caf5;
-  --text-muted: #565f89;
-  --accent: #bb9af7;
-  --border: #3d59a1;
-  --code-bg: #1a1b26;
-}
-
-body {
-  font-feature-settings: "liga" 1, "calt" 1;
-}
-
-.post-content code {
-  background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0.1em 0.3em;
-  font-size: 0.9em;
-}
-
-.post-content pre {
-  background: var(--code-bg) !important;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.post-content pre code {
-  border: none;
-  padding: 0;
-  background: transparent;
-}
-
-.post-content a {
-  color: var(--primary);
+/* Abbreviation tooltips */
+.post-content abbr[title] {
   text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s ease;
+  border-bottom: 1px dashed var(--accent);
+  cursor: help;
+  position: relative;
+  isolation: isolate;
 }
 
-.post-content a:hover {
-  border-bottom-color: var(--primary);
+.post-content abbr[title]::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #24283b;
+  color: #c0caf5;
+  border: 1px solid #bb9af7;
+  border-radius: 6px;
+  padding: 0.4em 0.7em;
+  font-size: 0.85em;
+  font-weight: normal;
+  white-space: normal;
+  min-width: 200px;
+  max-width: 360px;
+  line-height: 1.4;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.post-content blockquote {
-  border-left: 3px solid var(--accent);
-  background: var(--surface);
-  padding: 0.5em 1em;
-  border-radius: 0 4px 4px 0;
+.post-content abbr[title]:hover::after,
+.post-content abbr[title]:focus::after {
+  opacity: 1;
 }
 
-.post-content table {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.post-content th,
-.post-content td {
-  border: 1px solid var(--border);
-  padding: 0.5em 0.75em;
-}
-
-.post-content th {
-  background: var(--surface);
+.post-content abbr[title]:hover {
+  border-bottom-style: solid;
 }
