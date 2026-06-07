@@ -399,7 +399,7 @@ func main() {
 				func(ctx context.Context, s *reflexionState) error {
 					s.Attempt++
 					s.TestResult = testResult
-					// Простой <abbr title="Эвристика — практическое правило, работающее в большинстве случаев, но не гарантирующее корректность; здесь: «длина > 4 и начинается с PASS = успех»">эвристический</abbr> критерий
+					// Простой эвристический критерий
 					s.Passed = len(testResult) > 4 && testResult[:4] == "PASS"
 				},
 			); err != nil {

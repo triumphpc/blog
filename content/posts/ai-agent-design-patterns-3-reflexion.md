@@ -399,7 +399,7 @@ func main() {
 				func(ctx context.Context, s *reflexionState) error {
 					s.Attempt++
 					s.TestResult = testResult
-					// Simple <abbr title="Heuristic — a practical rule that works in most cases but doesn't guarantee correctness; here: «length > 4 and starts with PASS = success»">heuristic</abbr> criterion
+					// Simple heuristic criterion
 					s.Passed = len(testResult) > 4 && testResult[:4] == "PASS"
 				},
 			); err != nil {
