@@ -556,7 +556,7 @@ The Reflexion pattern is ReAct + self-assessment + episodic memory. Key takeaway
 
 4. **In Eino — compose.Graph with a cycle**. Workflow doesn't work (no cycles). Graph + `AddEdge("reflector", "actor")` + `WithMaxRunSteps` — the natural implementation.
 
-What's next? In Part 4 — Multi-Agent patterns: when one agent isn't enough, and you need a team. And the topic of agent memory — long-term, episodic, semantic — I'll cover in detail in Part 6.
+What's next? In [Part 4]({{< ref "ai-agent-design-patterns-4-multi-agent" >}}) — Multi-Agent patterns: when one agent isn't enough, and you need a team. And the topic of agent memory — long-term, episodic, semantic — I'll cover in detail in Part 6.
 
 {{< collapse title="📚 References" >}}
 
