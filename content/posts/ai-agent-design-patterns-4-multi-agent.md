@@ -592,4 +592,4 @@ And the main point: **adding agents doesn't fix a bad prompt**. Multi-agent is a
 
 ---
 
-**Next in the series:** Part 5: Tool Use Pattern _(coming soon)_
+**Next in the series:** [Part 5: Agent Memory Management]({{< ref "ai-agent-design-patterns-5-memory" >}})

@@ -602,4 +602,4 @@ Supervisor может делегировать неправильно. Agent м�
 
 ---
 
-**Следующая статья серии:** Часть 5: Tool Use Pattern _(скоро)_
+**Следующая статья серии:** [Часть 5: Agent Memory Management]({{< ref "ai-agent-design-patterns-5-memory" >}})
