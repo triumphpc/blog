@@ -518,6 +518,7 @@ Anthropic и OpenAI уже реализовали фоновую консоли�
 ---
 
 **Предыдущая статья серии:** [Часть 5: Agent Memory Management]({{< ref "ai-agent-design-patterns-5-memory" >}})
+**Следующая статья серии:** [Часть 7: Cloud-Native Standards]({{< ref "ai-agent-design-patterns-7-cloud-native-standards" >}})
 
 ## Источники
 
