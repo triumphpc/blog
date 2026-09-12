@@ -1,0 +1,34 @@
+{{- with site.Params.homeInfoParams }}
+<article class="first-entry home-info">
+    <header class="entry-header">
+        <h1>{{ .Title | markdownify }}</h1>
+    </header>
+    <div class="entry-content md-content">
+        {{ $opts := dict "display" "block" }}
+        {{ .Content | $.Page.RenderString $opts }}
+    </div>
+    {{- if or .Focus .Status }}
+    <div class="terminal-hero">
+        <div class="terminal-hero__bar">
+            <span class="terminal-hero__dot terminal-hero__dot--red"></span>
+            <span class="terminal-hero__dot terminal-hero__dot--yellow"></span>
+            <span class="terminal-hero__dot terminal-hero__dot--green"></span>
+            <span class="terminal-hero__path">~/{{ $.Page.Lang }}</span>
+        </div>
+        <div class="terminal-hero__body">
+            {{- with .Focus }}
+            <p class="terminal-hero__line"><span class="terminal-hero__prompt">$</span>focus</p>
+            <p class="terminal-hero__value">{{ delimit . " · " }}</p>
+            {{- end }}
+            {{- with .Status }}
+            <p class="terminal-hero__line"><span class="terminal-hero__prompt">$</span>currently</p>
+            <p class="terminal-hero__value terminal-hero__value--accent">{{ . }}</p>
+            {{- end }}
+        </div>
+    </div>
+    {{- end }}
+    <footer class="entry-footer">
+        {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
+    </footer>
+</article>
+{{- end -}}

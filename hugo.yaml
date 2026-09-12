@@ -22,6 +22,11 @@ languages:
       homeInfoParams:
         Title: "Hi there 👋"
         Content: Welcome to my blog about Go, LLM, AI Agents and engineering.
+        Focus:
+          - Go
+          - AI & LLM Agents
+          - Distributed Systems
+        Status: Writing about agent memory and concurrency internals.
     menu:
       main:
         - identifier: posts
@@ -53,6 +58,11 @@ languages:
       homeInfoParams:
         Title: "Привет 👋"
         Content: Блог о Go, LLM, AI-агентах и инженерии.
+        Focus:
+          - Go
+          - AI и LLM-агенты
+          - Распределённые системы
+        Status: Пишу про память агентов и внутренности конкурентности.
     menu:
       main:
         - identifier: posts
@@ -109,8 +119,6 @@ params:
 
   label:
     text: "Sebastian PE"
-    icon: /apple-touch-icon.png
-    iconHeight: 35
 
   socialIcons:
     - name: github

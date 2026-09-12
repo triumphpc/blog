@@ -39,3 +39,248 @@
 .post-content abbr[title]:hover {
   border-bottom-style: solid;
 }
+
+/* ============================================================
+   Terminal theme — fonts, tokens, accent
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --accent: #15803d;
+  --accent-soft: rgba(21, 128, 61, 0.12);
+}
+
+:root[data-theme="dark"] {
+  --theme: #101114;
+  --entry: #17181c;
+  --primary: #e4e4e7;
+  --secondary: #93949c;
+  --tertiary: #26282e;
+  --content: #d4d4d8;
+  --border: #26282e;
+  --code-bg: #1b1c20;
+  --accent: #4ade80;
+  --accent-soft: rgba(74, 222, 128, 0.14);
+}
+
+:root[data-theme="dark"] body {
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* ============================================================
+   Global chrome typography
+   ============================================================ */
+.header,
+.footer,
+.breadcrumbs,
+.post-meta,
+.entry-footer,
+.pagination,
+.post-tags,
+.terms-tags,
+details.toc summary,
+.post-nav-links,
+.archive-meta,
+.archive-count {
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   Header / logo prompt
+   ============================================================ */
+.logo a {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.logo a::before {
+  content: '> ';
+  color: var(--accent);
+}
+
+.menu li>a>span {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.menu li>a>span.active {
+  color: var(--accent);
+}
+
+/* ============================================================
+   Terminal-window hero (home_info override)
+   ============================================================ */
+.terminal-hero {
+  font-family: var(--font-mono);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--entry);
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.terminal-hero__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal-hero__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.terminal-hero__dot--red {
+  background: #ff5f56;
+}
+
+.terminal-hero__dot--yellow {
+  background: #ffbd2e;
+}
+
+.terminal-hero__dot--green {
+  background: #27c93f;
+}
+
+.terminal-hero__path {
+  margin-inline-start: 10px;
+  font-size: 12px;
+  color: var(--secondary);
+}
+
+.terminal-hero__body {
+  padding: 18px 22px 20px;
+}
+
+.terminal-hero__line {
+  margin: 0;
+  color: var(--secondary);
+}
+
+.terminal-hero__prompt {
+  color: var(--accent);
+  margin-inline-end: 0.6em;
+}
+
+.terminal-hero__value {
+  margin: 2px 0 14px;
+  color: var(--primary);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.terminal-hero__value--accent {
+  color: var(--accent);
+}
+
+.terminal-hero__value:last-child {
+  margin-bottom: 0;
+}
+
+/* ============================================================
+   Post entries
+   ============================================================ */
+.post-entry {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-inline-start: 2px solid var(--border);
+  border-radius: 4px;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.post-entry:hover,
+.post-entry:focus-within {
+  border-inline-start-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.entry-header h2 {
+  font-weight: 600;
+}
+
+.entry-footer {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================
+   Tags / terms pills
+   ============================================================ */
+.post-tags,
+.terms-tags {
+  font-size: 12px;
+}
+
+.post-tags a,
+.terms-tags a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px 4px 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.post-tags a::before,
+.terms-tags a::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.post-tags a:hover,
+.terms-tags a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ============================================================
+   Table of contents
+   ============================================================ */
+details .title::before {
+  content: '$ ';
+  color: var(--accent);
+}
+
+/* ============================================================
+   Links, pagination, footer
+   ============================================================ */
+.post-content a,
+.entry-content a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+}
+
+.pagination a {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  color: var(--primary);
+}
+
+.pagination a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding-top: calc((var(--footer-height) - var(--gap)) / 2);
+}
