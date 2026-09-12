@@ -10,6 +10,10 @@ ShowToc: true
 
 A review of **"Building Evolutionary Architectures"** by Neal Ford, Rebecca Parsons and Patrick Kua. One section per chapter: the problem it solves, the key ideas, and a diagram.
 
+![Evolutionary Architecture: designing systems ready for constant, unpredictable change](/images/evolutionary-architecture/slide-01.jpg)
+
+Each chapter below carries two visuals: a diagram of the idea, and the original slide from the source deck (the deck is in Russian).
+
 ## Core thesis: three pillars
 
 An evolutionary architecture supports **guided incremental change across multiple dimensions**. The operative word is *guided*: the system does not drift, it changes under the control of automated checks.
@@ -41,6 +45,8 @@ The three pillars overlap, and they only work together:
   <text x="360" y="386" text-anchor="middle" fill="#8b90a0" font-size="11">and boundaries</text>
 </svg>
 </div>
+
+![Three pillars of evolutionary architecture](/images/evolutionary-architecture/slide-02.jpg)
 
 ## Chapter 1. Guarding against decay through multiple dimensions
 
@@ -80,6 +86,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Multidimensional architecture: dimensions travelling through time inside evolvability](/images/evolutionary-architecture/slide-03.jpg)
+
 ## Chapter 2. Fitness functions as an immune system
 
 **The problem.** How do you objectively measure and protect critical characteristics — speed, security, resilience — when hundreds of developers change the code every day?
@@ -117,6 +125,8 @@ The three pillars overlap, and they only work together:
   </defs>
 </svg>
 </div>
+
+![Systemwide fitness function assembled from tests, monitoring and process metrics](/images/evolutionary-architecture/slide-04.jpg)
 
 ## Chapter 3. Engineering incremental change
 
@@ -164,6 +174,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Deployment pipeline with fitness function gates between stages](/images/evolutionary-architecture/slide-05.jpg)
+
 ## Chapter 4. Anatomy of the architectural quantum
 
 **The problem.** Accidental coupling — a change in one place breaks the whole system through hidden dependencies.
@@ -195,6 +207,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Anatomy of the architectural quantum](/images/evolutionary-architecture/slide-06.jpg)
+
 ## Chapter 4. Diagnostic matrix of styles
 
 **The problem.** Picking the wrong architectural template — one that resists change and does not match the pace of the business (Big Ball of Mud, for example).
@@ -207,6 +221,8 @@ The three pillars overlap, and they only work together:
 | Coupling level | High | High | Low | Low |
 | Incremental change | Hard | Hard | Easy | Easy |
 | Fitness functions | Hard | Medium | Easy | Easy |
+
+![Diagnostic matrix of architectural styles](/images/evolutionary-architecture/slide-07.jpg)
 
 ## Chapter 5. Evolving data on a live system
 
@@ -245,6 +261,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Expand/Contract migration pattern in four steps](/images/evolutionary-architecture/slide-08.jpg)
+
 ## Chapter 6. The mechanics of building evolution
 
 **The problem.** There is no clear, repeatable algorithm for designing a new system or refactoring a huge legacy codebase.
@@ -282,6 +300,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Three-step algorithm and the anticorruption layer between legacy and new services](/images/evolutionary-architecture/slide-09.jpg)
+
 ## Chapter 6. Guiding principles and routing
 
 **The problem.** Making "irreversible" architectural decisions that turn into technical debt and block further development.
@@ -318,6 +338,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Dynamic routing: 80% of traffic to V1, 20% to the sacrificial V2](/images/evolutionary-architecture/slide-10.jpg)
+
 ## Chapter 7. Threat board: antipatterns and traps
 
 **The problem.** Hidden systemic dysfunctions kill flexibility at the root, even when the team sits on modern frameworks.
@@ -329,6 +351,8 @@ The three pillars overlap, and they only work together:
 | Vendor King | total dependency on a proprietary vendor. Fix: introduce an abstraction layer |
 | Leaky Abstractions | infrastructure implementation details seep into business logic |
 | Resume-Driven Development | hype technology adopted for the architect's CV, needlessly complicating the quantum |
+
+![Threat board: Vendor King, Leaky Abstractions, Resume-Driven Development](/images/evolutionary-architecture/slide-11.jpg)
 
 ## Chapter 8. The Inverse Conway Maneuver
 
@@ -392,6 +416,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Silo versus cross-functional team structure](/images/evolutionary-architecture/slide-12.jpg)
+
 ## Chapter 8. The economics of evolution: talking to the business
 
 **The problem.** How do you justify to management — to the CFO — the money spent on engineering practices, refactoring and fitness functions?
@@ -423,6 +449,8 @@ The three pillars overlap, and they only work together:
 </svg>
 </div>
 
+![Sweet spot between cost per quantum and benefit](/images/evolutionary-architecture/slide-13.jpg)
+
 ## Migration strategies: where to start
 
 **The problem.** Analysis paralysis when facing a huge, historically tangled legacy monolith.
@@ -435,6 +463,8 @@ The three pillars overlap, and they only work together:
 | Highest-Value | maximum business benefit: harder, but proves ROI |
 | Infrastructure-first | automate the pipelines before anything else |
 | Testing-first | cover the legacy with fitness functions before refactoring |
+
+![Migration strategy selection matrix](/images/evolutionary-architecture/slide-14.jpg)
 
 ## Final synthesis
 
@@ -461,5 +491,7 @@ The three pillars overlap, and they only work together:
   </defs>
 </svg>
 </div>
+
+![Final synthesis: teams, architecture and pipelines in one loop](/images/evolutionary-architecture/slide-15.jpg)
 
 > Stop building to last. Start building for change.
