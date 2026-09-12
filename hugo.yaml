@@ -31,23 +31,23 @@ languages:
       main:
         - identifier: posts
           name: Posts
-          url: /posts/
+          pageRef: /posts/
           weight: 5
         - identifier: tags
           name: Tags
-          url: /tags/
+          pageRef: /tags/
           weight: 10
         - identifier: archives
           name: Archive
-          url: /archives/
+          pageRef: /archives/
           weight: 15
         - identifier: about
           name: About
-          url: /pages/about/
+          pageRef: /pages/about/
           weight: 20
         - identifier: projects
           name: Projects
-          url: /pages/projects/
+          pageRef: /pages/projects/
           weight: 25
   ru:
     languageName: "Русский"
@@ -67,23 +67,23 @@ languages:
       main:
         - identifier: posts
           name: Посты
-          url: /posts/
+          pageRef: /posts/
           weight: 5
         - identifier: tags
           name: Теги
-          url: /tags/
+          pageRef: /tags/
           weight: 10
         - identifier: archives
           name: Архив
-          url: /archives/
+          pageRef: /archives/
           weight: 15
         - identifier: about
           name: Обо мне
-          url: /pages/about/
+          pageRef: /pages/about/
           weight: 20
         - identifier: projects
           name: Проекты
-          url: /pages/projects/
+          pageRef: /pages/projects/
           weight: 25
 
 params:
