@@ -1,0 +1,29 @@
+{{- /* Embeds a self-contained interactive page from /static as a sandboxed iframe.
+
+  Params:
+    src     — path under /static, e.g. "sandbox/tricolor-gc.html" (leading slash optional)
+    height  — iframe height in px (default 780)
+    title   — iframe title / accessible name
+    link    — text of the "open in a new tab" link
+    caption — optional caption under the frame
+
+  relURL silently drops the baseURL sub-path ("/blog") when the path starts
+  with a slash, so trim it first — same trick as layouts/_markup/render-image.html.
+*/ -}}
+{{- $src := .Get "src" | default "" -}}
+{{- $src = strings.TrimPrefix "/" $src | relURL -}}
+{{- $height := .Get "height" | default "780" -}}
+{{- $title := .Get "title" | default "Interactive sandbox" -}}
+{{- $link := .Get "link" | default "Open in a new tab" -}}
+{{- $caption := .Get "caption" -}}
+<figure class="sandbox-embed">
+  <iframe src="{{ $src }}"
+          title="{{ $title }}"
+          loading="lazy"
+          height="{{ $height }}"
+          sandbox="allow-scripts allow-same-origin allow-popups"></iframe>
+  <figcaption>
+    {{- with $caption }}<span class="sandbox-caption">{{ . | safeHTML }}</span>{{ end -}}
+    <a class="sandbox-link" href="{{ $src }}" target="_blank" rel="noopener">{{ $link }} ↗</a>
+  </figcaption>
+</figure>

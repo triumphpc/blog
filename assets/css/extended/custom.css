@@ -310,3 +310,44 @@ details .title::before {
   font-size: 0.82rem;
   text-align: center;
 }
+
+/* ============================================================
+   Interactive sandboxes (iframe embeds from /static)
+   ============================================================ */
+.sandbox-embed {
+  margin: 28px 0;
+}
+
+.sandbox-embed iframe {
+  display: block;
+  width: 100%;
+  border: 1px solid #262a31;
+  border-radius: 8px;
+  background: #f3f0e7;
+  color-scheme: light;
+}
+
+.sandbox-embed figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 10px;
+  color: #8b90a0;
+  font-size: 0.82rem;
+}
+
+.sandbox-embed .sandbox-link {
+  font-family: var(--font-mono, 'JetBrains Mono'), ui-monospace, monospace;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* The sandbox needs more room than the 720px text column — break out on wide screens. */
+@media (min-width: 1100px) {
+  .sandbox-embed {
+    width: calc(100% + 220px);
+    margin-left: -110px;
+  }
+}

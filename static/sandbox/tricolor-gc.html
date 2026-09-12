@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tricolor GC in Go — Interactive Sandbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F0E7; --panel:#FBF9F2; --ink:#1B1915; --muted:#756E5D;
+  --line:#D8D1BE; --go:#0091AE; --go-ink:#00738C;
+  --amber:#E89B0C; --amber-soft:#F3CE6B; --red:#C2402F; --green:#2E7D4C;
+  --grey-node:#8B8794;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans',sans-serif; font-size:15px; line-height:1.5}
+button{font-family:inherit}
+
+/* ── header ─────────────────────────────── */
+header{display:flex; align-items:flex-end; justify-content:space-between; gap:24px; padding:30px 36px 6px; flex-wrap:wrap}
+h1{font-family:'Unbounded',sans-serif; font-weight:700; font-size:clamp(24px,3.6vw,38px); letter-spacing:-.5px; line-height:1.1}
+h1 .tri{color:var(--go-ink)}
+.sub{color:var(--muted); max-width:720px; margin-top:8px; font-size:14.5px}
+.sub b{color:var(--ink)}
+.hdr-legend{display:flex; gap:16px; font-family:'IBM Plex Mono',monospace; font-size:12px; padding-bottom:6px; flex-wrap:wrap}
+.hdr-legend span{display:inline-flex; align-items:center; gap:7px; color:var(--muted)}
+.dot{width:14px; height:14px; border-radius:50%; border:1.6px solid var(--ink); flex:none}
+.dot.w{background:#fff}
+.dot.g{background:var(--grey-node)}
+.dot.b{background:var(--ink)}
+
+/* ── toolbar ─────────────────────────────── */
+.toolbar{display:flex; align-items:center; gap:10px; padding:16px 36px 4px; flex-wrap:wrap}
+.btn{display:inline-flex; align-items:center; gap:8px; border:1.5px solid var(--ink); background:var(--panel);
+  color:var(--ink); border-radius:8px; padding:9px 14px; font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:background .15s, color .15s, transform .05s}
+.btn:hover:not(:disabled){background:var(--ink); color:var(--paper)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.35; cursor:not-allowed}
+.btn.primary{background:var(--ink); color:var(--paper)}
+.btn.primary:hover:not(:disabled){background:var(--go-ink); border-color:var(--go-ink)}
+.btn.live{background:var(--go); border-color:var(--go); color:#fff}
+.btn.live:hover:not(:disabled){background:var(--go-ink); border-color:var(--go-ink)}
+.btn svg{flex:none}
+.sep{width:1.5px; height:26px; background:var(--line); margin:0 4px}
+.switch{display:inline-flex; align-items:center; gap:9px; cursor:pointer; font-size:13.5px; font-weight:600; user-select:none}
+.switch input{display:none}
+.switch .track{width:36px; height:20px; border:1.6px solid var(--ink); border-radius:99px; position:relative; transition:background .2s; background:var(--panel)}
+.switch .track::after{content:''; position:absolute; top:2px; left:2.5px; width:12px; height:12px; border-radius:50%; background:var(--ink); transition:transform .2s, background .2s}
+.switch input:checked + .track{background:var(--ink)}
+.switch input:checked + .track::after{transform:translateX(15px); background:var(--paper)}
+.speed{display:inline-flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted)}
+input[type=range]{width:110px; accent-color:var(--ink); cursor:pointer}
+
+/* ── phase strip ──────────────────────────── */
+.phases{padding:10px 36px 0}
+.phase-status{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--muted); margin-bottom:7px}
+.phase-status b{color:var(--ink)}
+.phase-strip{display:flex; gap:7px}
+.ph{flex-basis:var(--w); border:1.5px solid var(--line); border-radius:8px; background:var(--panel);
+  padding:7px 10px; opacity:.5; transition:all .25s; min-width:0}
+.ph b{display:block; font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ph span{display:block; font-size:10.5px; color:var(--muted); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ph.active{opacity:1; border-color:var(--ink); background:#fff; box-shadow:3px 3px 0 var(--ink)}
+.ph.done{opacity:.75; border-color:var(--go)}
+.legend-row{padding:10px 36px 0; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--muted); display:flex; gap:20px; flex-wrap:wrap}
+.legend-row i{font-style:normal; color:var(--ink)}
+
+/* ── main grid ─────────────────────── */
+main{display:grid; grid-template-columns:minmax(0,1fr) 352px; gap:18px; padding:12px 36px 8px; align-items:start}
+.stage{position:relative; border:1.5px solid var(--ink); border-radius:14px; background:var(--panel); overflow:hidden}
+.stage svg{display:block; width:100%; height:auto; aspect-ratio:1000/620; touch-action:none; cursor:crosshair}
+.stage svg:active{cursor:grabbing}
+
+/* ── SVG ────────────────────────────────── */
+.edge-line{fill:none; stroke:var(--ink); stroke-width:1.6; transition:opacity .35s}
+.edge-hit{fill:none; stroke:transparent; stroke-width:16; cursor:pointer}
+.edge.dead .edge-line{opacity:0}
+.edge.dead .edge-hit{display:none}
+.zone-cap{font:500 10.5px 'IBM Plex Mono',monospace; fill:var(--muted); letter-spacing:1px}
+.divider{stroke:var(--line); stroke-width:1.5; stroke-dasharray:2 6}
+.node{cursor:grab}
+.node .body{fill:#fff; stroke:var(--ink); stroke-width:1.6; transition:fill .25s}
+.node text.lbl{font:600 13px 'IBM Plex Mono',monospace; fill:var(--ink); text-anchor:middle; dominant-baseline:central; pointer-events:none; transition:fill .25s}
+.node.grey .body{fill:var(--grey-node)}
+.node.grey text.lbl{fill:#fff}
+.node.black .body{fill:var(--ink)}
+.node.black text.lbl{fill:var(--paper)}
+.node.root .body{fill:var(--go); stroke:var(--ink)}
+.node.root text.lbl{fill:#fff; font-size:11px}
+.node.scanned .body{stroke-width:3.2}
+.node .ring{fill:none; stroke:var(--amber); stroke-width:2; stroke-dasharray:5 5; opacity:0; pointer-events:none}
+.node.sel .ring{opacity:1; animation:spin 7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.node .ring{transform-box:fill-box; transform-origin:center}
+.node.dissolve .inner{animation:diss .68s ease forwards}
+.node .inner{transform-box:fill-box; transform-origin:center}
+@keyframes diss{to{opacity:0; transform:scale(.45)}}
+.node.lost .body{fill:#F4DDD8; stroke:var(--red); stroke-dasharray:5 4}
+.node.lost text.lbl{fill:var(--red)}
+.node text.lost-cap{font:600 10px 'IBM Plex Mono',monospace; fill:var(--red); text-anchor:middle; pointer-events:none}
+.spark{fill:var(--go); pointer-events:none}
+.flash-ring{fill:none; stroke:var(--amber); stroke-width:3; pointer-events:none; animation:flashA .75s ease-out forwards; transform-box:fill-box; transform-origin:center}
+@keyframes flashA{from{transform:scale(.7); opacity:1}to{transform:scale(2); opacity:0}}
+text.floaty{font:600 11px 'IBM Plex Mono',monospace; pointer-events:none; animation:floaty 1.5s ease forwards}
+@keyframes floaty{to{transform:translateY(-28px); opacity:0}}
+
+/* ── STW flash ────────────────────────── */
+.stw{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity .18s}
+.stw.on{opacity:1}
+.stw .plate{background:var(--ink); color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600;
+  letter-spacing:2.5px; padding:10px 22px; border-radius:8px; box-shadow:4px 4px 0 rgba(27,25,21,.25)}
+.stw .corner{position:absolute; width:26px; height:26px; border:2.5px solid var(--red)}
+.stw .c1{top:10px; left:10px; border-right:none; border-bottom:none}
+.stw .c2{top:10px; right:10px; border-left:none; border-bottom:none}
+.stw .c3{bottom:10px; left:10px; border-right:none; border-top:none}
+.stw .c4{bottom:10px; right:10px; border-left:none; border-top:none}
+
+/* ── toasts ──────────────────────────────── */
+.toasts{position:absolute; right:14px; bottom:14px; display:flex; flex-direction:column; gap:8px; max-width:78%}
+.toast{background:var(--ink); color:var(--paper); padding:10px 15px; border-radius:8px; font-size:13px; line-height:1.4;
+  box-shadow:3px 3px 0 rgba(27,25,21,.2); animation:tin .25s ease}
+.toast.err{background:var(--red)}
+.toast.ok{background:var(--green)}
+@keyframes tin{from{transform:translateY(12px); opacity:0}}
+
+/* ── side panel ──────────────────────── */
+.panel{display:flex; flex-direction:column; gap:14px}
+.box{border:1.5px solid var(--ink); border-radius:12px; background:var(--panel); padding:13px 15px}
+.box h3{font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600; letter-spacing:1.8px; text-transform:uppercase; color:var(--muted); margin-bottom:9px}
+.status-txt{font-size:13.5px; line-height:1.45}
+.status-txt b{color:var(--go-ink)}
+.counts{display:grid; grid-template-columns:1fr 1fr; column-gap:18px}
+.crow{display:flex; justify-content:space-between; align-items:baseline; padding:4.5px 0; border-bottom:1px dashed var(--line); font-size:12px; color:var(--muted)}
+.crow:nth-last-child(-n+2){border-bottom:none}
+.crow b{font-family:'IBM Plex Mono',monospace; font-size:14px; color:var(--ink)}
+.crow b.em{color:var(--go-ink)}
+.qwrap{display:flex; flex-wrap:wrap; gap:6px; min-height:26px}
+.qchip{font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; border:1.4px solid var(--ink); border-radius:6px; padding:2px 8px; background:#fff; animation:tin .2s ease}
+.qchip.head{background:var(--amber-soft)}
+.qempty{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted)}
+.log{list-style:none; max-height:295px; overflow-y:auto; scrollbar-width:thin}
+.log li{font-family:'IBM Plex Mono',monospace; font-size:11.8px; line-height:1.5; padding:4.5px 0; border-bottom:1px dashed var(--line); color:#3d3a33; animation:tin .2s ease}
+.log .tag{font-weight:600; margin-right:5px}
+.t-mark{color:var(--go-ink)} .t-barrier{color:#B4780A} .t-sweep{color:var(--green)}
+.t-mut{color:#8a8271} .t-stw{color:var(--ink)} .t-err{color:var(--red)} .t-ok{color:var(--green)}
+
+/* ── notes ────────────────────────────── */
+footer{padding:6px 36px 46px; max-width:980px}
+footer h2{font-family:'Unbounded',sans-serif; font-size:17px; font-weight:700; margin-bottom:14px}
+.note{display:flex; gap:16px; margin-bottom:13px; align-items:baseline}
+.note .n{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px; color:var(--go-ink); flex:none}
+.note p{font-size:13.5px; color:#4a463c}
+.note code{font-family:'IBM Plex Mono',monospace; font-size:12.5px; background:#ECE7D9; padding:1px 5px; border-radius:4px}
+
+@media (max-width:1020px){
+  main{grid-template-columns:1fr}
+  header,.toolbar,.phases,.legend-row,main,footer{padding-left:18px; padding-right:18px}
+  .ph span{display:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Three colors. <span class="tri">One marker pass.</span></h1>
+    <p class="sub">This is how Go collects garbage: <b>white</b> objects have not been found yet, <b>grey</b> ones are found but their pointers are unread, <b>black</b> ones are fully scanned. Step through a cycle, switch the mutator on, then switch the write barrier off — and watch the GC lose a live object.</p>
+  </div>
+  <div class="hdr-legend">
+    <span><i class="dot w"></i>white</span>
+    <span><i class="dot g"></i>grey · queued</span>
+    <span><i class="dot b"></i>black</span>
+  </div>
+</header>
+
+<div class="toolbar">
+  <button class="btn primary" id="btnStep">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 2.5v11M7 8l6.5-5v10L7 8z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    Step
+  </button>
+  <button class="btn" id="btnAuto">
+    <svg id="icoPlay" width="13" height="13" viewBox="0 0 16 16"><path d="M3.5 2l10 6-10 6z" fill="currentColor"/></svg>
+    <svg id="icoPause" width="13" height="13" viewBox="0 0 16 16" style="display:none"><path d="M3.5 2h3v12h-3zM9.5 2h3v12h-3z" fill="currentColor"/></svg>
+    <span id="autoLbl">Auto</span>
+  </button>
+  <span class="speed"><input type="range" id="speed" min="1" max="8" step="1" value="3"><span id="speedVal">≈3.5 steps/s</span></span>
+  <div class="sep"></div>
+  <label class="switch"><input type="checkbox" id="swMut"><span class="track"></span>Mutator</label>
+  <label class="switch"><input type="checkbox" id="swBarrier" checked><span class="track"></span>Write barrier</label>
+  <div class="sep"></div>
+  <button class="btn" id="btnAdd">
+    <svg width="13" height="13" viewBox="0 0 16 16"><path d="M8 2.5v11M2.5 8h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    Object
+  </button>
+  <button class="btn" id="btnExp">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6.2 1.8h3.6M7 1.8v4.4L2.8 12a1.8 1.8 0 001.6 2.6h7.2a1.8 1.8 0 001.6-2.6L9 6.2V1.8M5 10.5h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Experiment: lose an object
+  </button>
+  <button class="btn" id="btnReset">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M13.5 8a5.5 5.5 0 11-1.6-3.9M13.5 1.8v3h-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    New heap
+  </button>
+</div>
+
+<div class="phases">
+  <div class="phase-status" id="phaseStatus"></div>
+  <div class="phase-strip" id="phaseStrip">
+    <div class="ph" data-ph="start" style="--w:15%"><b>STW · setup</b><span>enable barrier, scan roots</span></div>
+    <div class="ph" data-ph="mark" style="--w:44%"><b>Concurrent mark</b><span>grey → black, program keeps running</span></div>
+    <div class="ph" data-ph="mt" style="--w:12%"><b>STW · mark termination</b><span>a short finish</span></div>
+    <div class="ph" data-ph="sweep" style="--w:29%"><b>Concurrent sweep</b><span>white is freed</span></div>
+  </div>
+</div>
+
+<div class="legend-row">
+  <span>click two objects — <i>link / unlink</i></span>
+  <span>click an arrow — <i>drop the pointer</i></span>
+  <span>double-click the canvas — <i>new object</i></span>
+  <span>drag — <i>rearrange</i></span>
+</div>
+
+<main>
+  <section class="stage">
+    <svg id="heap" viewBox="0 0 1000 620">
+      <defs>
+        <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+          <circle cx="1.2" cy="1.2" r="1.2" fill="rgba(27,25,21,.07)"/>
+        </pattern>
+        <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+          <path d="M0 0L10 5L0 10z" fill="#1B1915"/>
+        </marker>
+      </defs>
+      <rect id="bg" width="1000" height="620" fill="url(#dots)"/>
+      <text class="zone-cap" x="30" y="38">ROOT SET</text>
+      <text class="zone-cap" x="30" y="54">GOROUTINE STACKS, GLOBALS</text>
+      <text class="zone-cap" x="252" y="38">HEAP</text>
+      <text class="zone-cap" x="252" y="54">OBJECTS</text>
+      <line class="divider" x1="218" y1="20" x2="218" y2="600"/>
+      <g id="edgesLayer"></g>
+      <g id="nodesLayer"></g>
+      <g id="fxLayer"></g>
+    </svg>
+    <div class="stw" id="stw">
+      <div class="corner c1"></div><div class="corner c2"></div><div class="corner c3"></div><div class="corner c4"></div>
+      <div class="plate" id="stwText">STW</div>
+    </div>
+    <div class="toasts" id="toasts"></div>
+  </section>
+
+  <aside class="panel">
+    <div class="box">
+      <h3>State</h3>
+      <div class="status-txt" id="statusTxt">No cycle running. The heap is living its own life.</div>
+    </div>
+    <div class="box">
+      <h3>Counters</h3>
+      <div class="counts" id="counts"></div>
+    </div>
+    <div class="box">
+      <h3>Grey set — the marker's queue</h3>
+      <div class="qwrap" id="queue"></div>
+    </div>
+    <div class="box" style="flex:1">
+      <h3>Log</h3>
+      <ul class="log" id="log"></ul>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <h2>Why it works this way — notes on Go's GC</h2>
+  <div class="note"><span class="n">01</span><p>Go does not stop the world for the whole mark phase: markers run alongside the program, and correctness is held by the <code>write barrier</code>. It enforces the invariant that a black object cannot quietly acquire a pointer to a white one — the moment such a write happens, the white object is shaded grey.</p></div>
+  <div class="note"><span class="n">02</span><p>Objects allocated while a cycle is in flight are born <b>black</b>: they were just created, there is nothing to scan inside them, and shading them grey would keep the marker running in circles.</p></div>
+  <div class="note"><span class="n">03</span><p><code>Mark assist</code>: a goroutine that allocates memory must do marking work proportional to what it allocated. Otherwise one goroutine would allocate faster than the rest can mark.</p></div>
+  <div class="note"><span class="n">04</span><p>Unlike reference counting, tricolor marking happily collects <b>garbage cycles</b> — the starting heap has a pair F ⇄ G for exactly that: run to the sweep and check.</p></div>
+</footer>
+
+<script>
+'use strict';
+/* ═══════════ base refs and constants ═══════════ */
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const svg = $('#heap'), edgesLayer = $('#edgesLayer'), nodesLayer = $('#nodesLayer'), fxLayer = $('#fxLayer');
+const W = 1000, H = 620;
+
+let nodes = new Map();          // id → node
+let edges = [];                 // {id, from, to, el:{g,line,hit}}
+let roots = [];                 // root ids
+let greyQueue = [];             // grey queue (ids)
+let phase = 'off';              // 'off' | 'mark' | 'sweep'
+let cycle = 0, freedTotal = 0, freedCycle = 0, barrierHits = 0;
+let barrierOn = true, mutatorOn = false, autoOn = false;
+let rootsScanned = false;
+let selected = null;
+let sweepList = [], reachableSnap = new Set();
+let experimentWatch = null, pendingExp = false;
+let uid = 1, labelCounter = 0;
+let autoTimer = null, mutTimer = null;
+
+const R_NODE = 21, R_ROOT = 30;
+
+/* ═══════════ utils ═══════════ */
+const el = (tag, attrs = {}, parent = null) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+const nextLabel = () => {
+  const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const n = labelCounter++;
+  return n < 26 ? L[n] : L[n % 26] + Math.floor(n / 26);
+};
+const aliveHeap = () => [...nodes.values()].filter(n => !n.isRoot && n.state === 'alive');
+const edgesFrom = id => edges.filter(e => e.from === id);
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+
+/* ═══════════ log, toasts, counters ═══════════ */
+const TAGS = { mark:'marker', barrier:'barrier', sweep:'sweep', mut:'mutator', stw:'STW', err:'fault', ok:'done' };
+function log(type, msg) {
+  const li = document.createElement('li');
+  li.innerHTML = `<span class="tag t-${type}">[${TAGS[type]}]</span>${msg}`;
+  const box = $('#log');
+  box.prepend(li);
+  while (box.children.length > 70) box.lastChild.remove();
+}
+function toast(msg, kind = '') {
+  const t = document.createElement('div');
+  t.className = 'toast ' + kind; t.textContent = msg;
+  $('#toasts').appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .4s'; setTimeout(() => t.remove(), 400); }, 3600);
+}
+function updateStats() {
+  const alive = aliveHeap();
+  const c = { white: 0, grey: 0, black: 0 };
+  alive.forEach(n => c[n.color]++);
+  $('#counts').innerHTML = [
+    ['objects in heap', alive.length, ''],
+    ['white', c.white, ''], ['grey', c.grey, 'em'], ['black', c.black, ''],
+    ['freed total', freedTotal, ''], ['GC cycles', cycle, ''], ['barrier hits', barrierHits, 'em'], ['roots', roots.length, ''],
+  ].map(([k, v, cls]) => `<div class="crow"><span>${k}</span><b class="${cls}">${v}</b></div>`).join('');
+}
+function renderQueue() {
+  const q = $('#queue');
+  const items = greyQueue.map((id, i) => {
+    const n = nodes.get(id);
+    return n && n.state === 'alive' ? `<span class="qchip${i === 0 ? ' head' : ''}">${n.label}</span>` : '';
+  }).filter(Boolean);
+  q.innerHTML = items.length ? items.join('') : '<span class="qempty">— empty —</span>';
+}
+function setStatus(html) { $('#statusTxt').innerHTML = html; }
+function setPhaseUI(p) {
+  document.querySelectorAll('.ph').forEach(x => {
+    x.classList.toggle('active', x.dataset.ph === p);
+    x.classList.toggle('done', (p === 'mark' && ['start'].includes(x.dataset.ph)) || (p === 'sweep' && ['start','mark'].includes(x.dataset.ph)) || (p === 'off' && x.classList.contains('was')));
+  });
+  if (p === 'off') document.querySelectorAll('.ph').forEach(x => x.classList.remove('done'));
+}
+function updatePhaseStatus() {
+  const s = $('#phaseStatus');
+  if (phase === 'mark') s.innerHTML = `<b>phase:</b> concurrent mark · ${greyQueue.length} queued · write barrier ${barrierOn ? 'ON' : '<span style="color:var(--red)">OFF</span>'}`;
+  else if (phase === 'sweep') s.innerHTML = `<b>phase:</b> concurrent sweep · ${sweepList.length} candidates left`;
+  else s.innerHTML = `<b>phase:</b> the program is running — no GC cycle active`;
+}
+
+/* ═══════════ graph construction ═══════════ */
+function makeNode(label, x, y, isRoot = false) {
+  const n = { id: 'n' + uid++, label, x, y, hx: x, hy: y, vx: 0, vy: 0,
+    color: 'white', state: 'alive', isRoot, el: null };
+  const g = el('g', {}, nodesLayer);
+  const inner = el('g', { class: 'inner' }, g);
+  const ring = el('circle', { class: 'ring', r: 28 }, inner);
+  const body = isRoot
+    ? el('rect', { class: 'body', x: -42, y: -17, width: 84, height: 34, rx: 8 }, inner)
+    : el('circle', { class: 'body', r: R_NODE }, inner);
+  const t = el('text', { class: 'lbl', y: isRoot ? 0.5 : 0.5 }, inner);
+  t.textContent = label;
+  g.setAttribute('class', 'node ' + (isRoot ? 'root' : 'white'));
+  g.dataset.id = n.id;
+  n.el = g;
+  nodes.set(n.id, n);
+  return n;
+}
+function makeEdge(from, to) {
+  if (from === to) return null;
+  if (edges.some(e => (e.from === from && e.to === to) || (e.from === to && e.to === from))) return null;
+  const e = { id: 'e' + uid++, from, to, el: null };
+  const g = el('g', {}, edgesLayer);
+  const hit = el('path', { class: 'edge-hit', 'data-id': e.id }, g);
+  const line = el('path', { class: 'edge-line', 'marker-end': 'url(#arrow)' }, g);
+  e.el = { g, line, hit };
+  edges.push(e);
+  return e;
+}
+function applyClass(n) {
+  let cls = 'node ';
+  cls += n.isRoot ? 'root' + (rootsScanned ? ' scanned' : '') : n.color;
+  if (n.dangling) cls += ' lost';
+  if (n.state === 'collected' && !n.dangling) cls += ' dissolve';
+  if (selected === n) cls += ' sel';
+  n.el.setAttribute('class', cls);
+}
+
+function buildHeap() {
+  nodes.clear(); edges = []; roots = []; greyQueue = [];
+  labelCounter = 0; uid = 1;
+  edgesLayer.innerHTML = ''; nodesLayer.innerHTML = ''; fxLayer.innerHTML = '';
+
+  const r1 = makeNode('G1 stack', 108, 210, true);
+  const r2 = makeNode('globals', 108, 400, true);
+  roots = [r1.id, r2.id];
+
+  const P = { A:[320,175], B:[455,110], C:[430,300], D:[300,410], E:[590,205], I:[600,395], F:[830,480], G:[935,415], H:[880,290] };
+  const N = {};
+  for (const k in P) N[k] = makeNode(k, P[k][0] + (Math.random()*30-15), P[k][1] + (Math.random()*30-15));
+
+  [[r1,N.A],[r1,N.D],[r2,N.B],   // roots
+   [N.A,N.B],[N.A,N.C],[N.B,N.C],[N.C,N.A],  // live cycle A→B→C→A
+   [N.D,N.E],[N.E,N.C],[N.B,N.I],[N.I,N.C],
+   [N.F,N.G],[N.G,N.F]          // garbage cycle F⇄G, H is an orphan
+  ].forEach(([a,b]) => makeEdge(a.id, b.id));
+
+  nodes.forEach(applyClass);
+  cycle = 0; freedTotal = 0; freedCycle = 0; barrierHits = 0;
+  phase = 'off'; rootsScanned = false; selected = null;
+  experimentWatch = null; pendingExp = false;
+  setPhaseUI('off');
+  log('stw', 'heap regenerated: 9 objects, 2 roots. Garbage is already in there — find it with the first cycle.');
+  updateStats(); renderQueue(); updatePhaseStatus();
+}
+
+/* ═══════════ effects ═══════════ */
+function edgeGeom(e) {
+  const a = nodes.get(e.from), b = nodes.get(e.to);
+  const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+  const ra = (a.isRoot ? R_ROOT : R_NODE) + 2, rb = (b.isRoot ? R_ROOT : R_NODE) + 9;
+  return { x1: a.x + dx/d*ra, y1: a.y + dy/d*ra, x2: b.x - dx/d*rb, y2: b.y - dy/d*rb };
+}
+const sparks = [];
+function spawnSpark(e) {
+  const g = edgeGeom(e);
+  const c = el('circle', { class: 'spark', r: 4 }, fxLayer);
+  sparks.push({ ...g, t: 0, el: c });
+}
+function spawnFlash(n) {
+  const f = el('circle', { class: 'flash-ring', r: R_NODE, cx: n.x, cy: n.y }, fxLayer);
+  setTimeout(() => f.remove(), 800);
+}
+function floaty(n, text, color = '#B4780A') {
+  const t = el('text', { class: 'floaty', x: n.x, y: n.y - (n.isRoot ? 24 : 30), fill: color, 'text-anchor': 'middle' }, fxLayer);
+  t.textContent = text;
+  setTimeout(() => t.remove(), 1600);
+}
+function stwFlash(text) {
+  $('#stwText').textContent = 'STW · ' + text;
+  const o = $('#stw');
+  o.classList.add('on');
+  setTimeout(() => o.classList.remove('on'), 850);
+}
+
+/* ═══════════ write barrier ═══════════ */
+function isBlackWriter(n) { return n.isRoot ? (rootsScanned && phase === 'mark') : (n.state === 'alive' && n.color === 'black'); }
+function barrierCheck(from, to) {
+  if (phase !== 'mark' || !isBlackWriter(from) || to.isRoot || to.state !== 'alive' || to.color !== 'white') return false;
+  if (barrierOn) {
+    setColor(to, 'grey'); greyQueue.push(to.id); renderQueue();
+    barrierHits++;
+    const e = edges.find(x => x.from === from.id && x.to === to.id);
+    if (e) spawnSpark(e);
+    spawnFlash(to); floaty(to, 'barrier!');
+    log('barrier', `write *${from.label} = ${to.label}: white ${to.label} hidden behind a black one → shaded grey. Invariant saved.`);
+    updateStats();
+    return true;
+  }
+  floaty(to, 'risk of loss', '#C2402F');
+  log('err', `write *${from.label} = ${to.label} with no barrier: white ${to.label} is hidden behind a black object — the marker will not come back for it.`);
+  return false;
+}
+function setColor(n, c) { n.color = c; applyClass(n); }
+
+/* ═══════════ GC engine ═══════════ */
+function startCycle() {
+  if (phase !== 'off') return;
+  cycle++; freedCycle = 0; rootsScanned = true; phase = 'mark';
+  setPhaseUI('start'); updatePhaseStatus();
+  stwFlash('enabling write barrier');
+  aliveHeap().forEach(n => setColor(n, 'white'));
+  const newly = [];
+  roots.forEach(rid => edgesFrom(rid).forEach(e => {
+    const t = nodes.get(e.to);
+    if (t && t.state === 'alive' && t.color === 'white') {
+      setColor(t, 'grey'); greyQueue.push(t.id); newly.push(t.label); spawnSpark(e);
+    }
+  }));
+  roots.forEach(rid => applyClass(nodes.get(rid)));
+  log('stw', `cycle ${cycle}: the world was briefly stopped — write barrier enabled, roots scanned.`);
+  if (newly.length) log('mark', `roots point to: ${newly.join(', ')} → grey.`);
+  else log('mark', 'the roots point nowhere — the whole heap is garbage.');
+  renderQueue(); updateStats();
+  if (autoOn) setStatus(`<b>Cycle ${cycle} in progress.</b> The marker takes grey objects off the queue, reads their pointers and paints them black.`);
+  else setStatus(`<b>Cycle ${cycle} in progress.</b> Hit "Step": the marker pops an object off the grey queue, scans its references, shades them grey and turns itself black.`);
+}
+
+function markStep() {
+  while (greyQueue.length) {
+    const n = nodes.get(greyQueue.shift());
+    if (n && n.state === 'alive' && n.color === 'grey') {
+      const newly = [];
+      edgesFrom(n.id).forEach(e => {
+        const t = nodes.get(e.to);
+        if (t && t.state === 'alive' && t.color === 'white') {
+          setColor(t, 'grey'); greyQueue.push(t.id); newly.push(t.label); spawnSpark(e);
+        }
+      });
+      setColor(n, 'black');
+      log('mark', newly.length
+        ? `scanning ${n.label}: references to ${newly.join(', ')} → grey; ${n.label} → black.`
+        : `scanning ${n.label}: no white references; ${n.label} → black.`);
+      renderQueue(); updateStats(); updatePhaseStatus();
+      if (pendingExp) {
+        const b = aliveHeap().find(x => !x.isRoot && x.color === 'black');
+        if (b) { pendingExp = false; setupExperiment(b); }
+      }
+      return;
+    }
+  }
+  beginSweep();
+}
+
+function bfsReachable() {
+  const seen = new Set();
+  const stack = roots.filter(rid => nodes.get(rid));
+  while (stack.length) {
+    const id = stack.pop();
+    if (seen.has(id)) continue;
+    const n = nodes.get(id);
+    if (!n || n.state !== 'alive') continue;
+    seen.add(id);
+    edgesFrom(id).forEach(e => { if (!seen.has(e.to)) stack.push(e.to); });
+  }
+  return seen;
+}
+
+function beginSweep() {
+  phase = 'sweep'; setPhaseUI('sweep'); updatePhaseStatus();
+  stwFlash('mark termination');
+  sweepList = aliveHeap().filter(n => n.color === 'white').map(n => n.id);
+  reachableSnap = bfsReachable();
+  log('stw', 'no grey objects left. Short STW: the barrier goes off, counters are finalized.');
+  log('sweep', `sweep: white = garbage. ${sweepList.length} candidates.`);
+  if (pendingExp) { pendingExp = false; log('err', 'experiment aborted: no black object showed up in this cycle.'); }
+  setStatus(`<b>Cycle ${cycle}: sweep.</b> Everything still white is unreachable from the roots — free it.`);
+}
+
+function collectNode(n) {
+  n.state = 'collected';
+  freedTotal++; freedCycle++;
+  const lost = reachableSnap.has(n.id) || bfsHas(n.id);
+  edges.filter(e => e.from === n.id || e.to === n.id).forEach(e => removeEdge(e, false));
+  if (lost) {
+    n.dangling = true;
+    const cap = el('text', { class: 'lost-cap', y: R_NODE + 15 }, n.el.querySelector('.inner'));
+    cap.textContent = 'lost by GC';
+    applyClass(n);
+    log('err', `!! ${n.label} was reachable from the roots but stayed white behind a black object — freed BY MISTAKE.`);
+    toast(`Object ${n.label} was live, and the GC destroyed it. That is what losing an object without a write barrier looks like.`, 'err');
+  } else {
+    applyClass(n);
+    log('sweep', `${n.label} is garbage, freed.`);
+    const elx = n.el; setTimeout(() => elx.remove(), 720);
+    nodes.delete(n.id);
+  }
+  updateStats(); updatePhaseStatus();
+}
+function bfsHas(id) { return reachableSnap.has(id); }
+
+function finishCycle() {
+  phase = 'off'; rootsScanned = false;
+  setPhaseUI('off');
+  nodes.forEach(n => { if (n.state === 'alive') { n.color = 'white'; applyClass(n); } });
+  roots.forEach(rid => { const r = nodes.get(rid); if (r) applyClass(r); });
+  const survived = aliveHeap().length;
+  log('ok', `cycle ${cycle} finished: freed ${freedCycle}, survived ${survived}. Objects are white again — the heap is ready for a new cycle.`);
+  if (experimentWatch) {
+    const n = nodes.get(experimentWatch);
+    if (n && n.state === 'alive')
+      { log('ok', `experiment: ${n.label} survived — the write barrier shaded it grey at the moment of the pointer write.`); toast(`${n.label} was saved by the write barrier: it turned grey in time.`, 'ok'); }
+    experimentWatch = null;
+  }
+  freedCycle = 0; greyQueue = []; sweepList = [];
+  renderQueue(); updateStats(); updatePhaseStatus();
+  setStatus('Cycle complete. The heap is white again. Try switching the mutator on and running another cycle — or switch the barrier off and repeat the experiment.');
+}
+
+function stepGC() {
+  if (phase === 'off') { startCycle(); return; }
+  if (phase === 'mark') { markStep(); return; }
+  if (phase === 'sweep') {
+    if (!sweepList.length) { finishCycle(); return; }
+    const id = sweepList.shift();
+    const n = nodes.get(id);
+    if (n && n.state === 'alive' && n.color === 'white') collectNode(n);
+    if (!sweepList.length) finishCycle();
+  }
+}
+
+/* ═══════════ "lost object" experiment ═══════════ */
+function setupExperiment(B) {
+  const cands = aliveHeap().filter(n => n.color === 'white' &&
+    edges.some(e => e.to === n.id && nodes.get(e.from) && !nodes.get(e.from).isRoot));
+  if (!cands.length) { log('err', 'experiment: no white object with a non-root parent. Create some objects and try again.'); return; }
+  const Wn = rnd(cands);
+  const xe = edges.find(e => e.to === Wn.id && !nodes.get(e.from).isRoot);
+  const X = nodes.get(xe.from);
+  log('mut', `experiment: the mutator runs <b>*${B.label} = ${Wn.label}</b> and clears ${X.label} → ${Wn.label}.`);
+  removeEdge(xe, false);
+  makeEdge(B.id, Wn.id);
+  const saved = barrierCheck(B, Wn);
+  experimentWatch = Wn.id;
+  if (!saved) {
+    log('err', `${Wn.label} is now reachable only through the black ${B.label}. The marker does not revisit black — wait for the sweep…`);
+    toast('Barrier off: if the object hangs on only behind a black one, it will be lost.', 'err');
+  }
+  if (!autoOn) toggleAuto(true);
+}
+
+/* ═══════════ mutator ═══════════ */
+function mutWrite() {
+  const alive = aliveHeap();
+  const from = (Math.random() < 0.25 && roots.length) ? nodes.get(rnd(roots)) : rnd(alive);
+  const cands = alive.filter(n => n !== from);
+  if (!cands.length) return;
+  const to = rnd(cands);
+  const outs = edgesFrom(from.id);
+  if (outs.length && Math.random() < 0.8) removeEdge(rnd(outs), false);
+  makeEdge(from.id, to.id);
+  floaty(from, 'ptr write', '#756E5D');
+  log('mut', `pointer write: *${from.label} = ${to.label}`);
+  barrierCheck(from, to);
+}
+function mutAlloc() {
+  if (aliveHeap().length >= 24) return;
+  const parent = rnd(aliveHeap());
+  const a = Math.random() * Math.PI * 2;
+  const x = Math.max(255, Math.min(W - 45, parent.x + Math.cos(a) * 95));
+  const y = Math.max(60, Math.min(H - 45, parent.y + Math.sin(a) * 95));
+  const n = makeNode(nextLabel(), x, y);
+  const bornBlack = phase === 'mark';
+  n.color = bornBlack ? 'black' : 'white';
+  applyClass(n);
+  makeEdge(parent.id, n.id);
+  floaty(n, 'alloc', '#00738C');
+  log('mut', `allocated ${n.label} → ${bornBlack ? '<b>black</b> right away (in Go, allocations during a cycle are born black)' : 'white'}.`);
+  updateStats();
+}
+function mutUnlink() {
+  const cands = edges.filter(e => Math.random() < 0.9 ? !nodes.get(e.from).isRoot : true);
+  if (!cands.length) return;
+  const e = rnd(cands);
+  const a = nodes.get(e.from), b = nodes.get(e.to);
+  removeEdge(e, false);
+  floaty(a, 'unlink', '#756E5D');
+  log('mut', `cleared the reference ${a.label} → ${b.label}.`);
+}
+function mutatorTick() {
+  if (!mutatorOn || Math.random() < 0.15) return;
+  if (!aliveHeap().length) return;
+  const r = Math.random();
+  if (r < 0.44) mutWrite(); else if (r < 0.74) mutAlloc(); else mutUnlink();
+}
+
+/* ═══════════ editing the graph with the mouse ═══════════ */
+function removeEdge(e, manual) {
+  const a = nodes.get(e.from), b = nodes.get(e.to);
+  edges = edges.filter(x => x !== e);
+  e.el.g.classList.add('dead');
+  const g = e.el.g; setTimeout(() => g.remove(), 380);
+  if (manual) log('mut', `pointer ${a ? a.label : '?'} → ${b ? b.label : '?'} removed by hand.`);
+}
+function toggleLink(a, b) {
+  if (a === b) return;
+  const ex = edges.find(e => (e.from === a.id && e.to === b.id) || (e.from === b.id && e.to === a.id));
+  if (ex) { removeEdge(ex, true); return; }
+  makeEdge(a.id, b.id);
+  log('mut', `new link ${a.label} → ${b.label}.`);
+  barrierCheck(a, b);
+  updateStats();
+}
+function addNodeAt(p, attachTo) {
+  if (aliveHeap().length >= 26) { toast('Heap is full — that is enough objects.', ''); return; }
+  const n = makeNode(nextLabel(), p.x, p.y);
+  if (attachTo) makeEdge(attachTo.id, n.id);
+  const bornBlack = phase === 'mark';
+  n.color = bornBlack ? 'black' : 'white';
+  applyClass(n);
+  log('mut', `manually allocated ${n.label}${attachTo ? ` (referenced from ${attachTo.label})` : ''}${bornBlack ? ' — black, a cycle is running' : ''}.`);
+  updateStats();
+  return n;
+}
+
+/* ═══════════ drag / click on the SVG ═══════════ */
+function svgPoint(e) {
+  const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+let down = null;
+svg.addEventListener('pointerdown', e => {
+  const g = e.target.closest('.node');
+  if (g) {
+    const n = nodes.get(g.dataset.id);
+    if (!n || n.state !== 'alive') return;
+    down = { n, moved: false };
+    svg.setPointerCapture(e.pointerId);
+  } else if (e.target.closest('.edge-hit')) {
+    const ed = edges.find(x => x.id === e.target.closest('.edge-hit').dataset.id);
+    if (ed) removeEdge(ed, true);
+    down = null;
+  } else {
+    down = { empty: true, p: svgPoint(e) };
+  }
+});
+svg.addEventListener('pointermove', e => {
+  if (!down || !down.n) return;
+  const p = svgPoint(e);
+  if (Math.hypot(p.x - down.n.x, p.y - down.n.y) > 3) down.moved = true;
+  if (down.moved) {
+    down.n.x = Math.max(35, Math.min(W - 35, p.x));
+    down.n.y = Math.max(35, Math.min(H - 35, p.y));
+    down.n.hx = down.n.x; down.n.hy = down.n.y;
+    down.n.vx = down.n.vy = 0;
+  }
+});
+svg.addEventListener('pointerup', () => {
+  if (!down) return;
+  if (down.n && !down.moved) {
+    if (!selected) { selected = down.n; }
+    else if (selected === down.n) { selected = null; }
+    else { toggleLink(selected, down.n); selected = null; }
+    nodes.forEach(applyClass);
+  } else if (down.empty) { selected = null; nodes.forEach(applyClass); }
+  down = null;
+});
+svg.addEventListener('dblclick', e => {
+  if (e.target.closest('.node')) return;
+  addNodeAt(svgPoint(e));
+});
+
+/* ═══════════ layout physics ═══════════ */
+function physics() {
+  const alive = [...nodes.values()].filter(n => n.state === 'alive');
+  for (let i = 0; i < alive.length; i++) for (let j = i + 1; j < alive.length; j++) {
+    const a = alive[i], b = alive[j];
+    let dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
+    if (d < 105 && d > 0.01) {
+      const f = (105 - d) / d * 0.35;
+      a.vx -= dx * f; a.vy -= dy * f; b.vx += dx * f; b.vy += dy * f;
+    }
+  }
+  edges.forEach(e => {
+    const a = nodes.get(e.from), b = nodes.get(e.to);
+    if (!a || !b || a.state !== 'alive' || b.state !== 'alive') return;
+    const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+    const rest = (a.isRoot || b.isRoot) ? 165 : 125, f = (d - rest) * 0.006 / d;
+    a.vx += dx * f; a.vy += dy * f; b.vx -= dx * f; b.vy -= dy * f;
+  });
+  alive.forEach(n => {
+    const k = n.isRoot ? 0.09 : 0.004;
+    n.vx += (n.hx - n.x) * k; n.vy += (n.hy - n.y) * k;
+    n.vx *= 0.84; n.vy *= 0.84;
+    n.x += n.vx; n.y += n.vy;
+    if (n.x < 35 || n.x > W - 35) { n.x = Math.max(35, Math.min(W - 35, n.x)); n.vx = 0; }
+    if (n.y < 60 || n.y > H - 35) { n.y = Math.max(60, Math.min(H - 35, n.y)); n.vy = 0; }
+    n.el.setAttribute('transform', `translate(${n.x},${n.y})`);
+  });
+  edges.forEach(e => {
+    const g = edgeGeom(e), d = `M${g.x1} ${g.y1}L${g.x2} ${g.y2}`;
+    e.el.line.setAttribute('d', d); e.el.hit.setAttribute('d', d);
+  });
+  for (let i = sparks.length - 1; i >= 0; i--) {
+    const s = sparks[i];
+    s.t += 0.055;
+    if (s.t >= 1) { s.el.remove(); sparks.splice(i, 1); continue; }
+    s.el.setAttribute('cx', s.x1 + (s.x2 - s.x1) * s.t);
+    s.el.setAttribute('cy', s.y1 + (s.y2 - s.y1) * s.t);
+    s.el.setAttribute('r', 3 + s.t * 2.5);
+  }
+}
+(function tick() { physics(); requestAnimationFrame(tick); })();
+
+/* ═══════════ controls ═══════════ */
+function intervalOf() { return 1750 - $('#speed').value * 190; }
+function toggleAuto(force) {
+  autoOn = force !== undefined ? force : !autoOn;
+  $('#autoLbl').textContent = autoOn ? 'Pause' : 'Auto';
+  $('#icoPlay').style.display = autoOn ? 'none' : '';
+  $('#icoPause').style.display = autoOn ? '' : 'none';
+  $('#btnAuto').classList.toggle('live', autoOn);
+  clearInterval(autoTimer);
+  if (autoOn) autoTimer = setInterval(stepGC, intervalOf());
+}
+$('#btnStep').addEventListener('click', stepGC);
+$('#btnAuto').addEventListener('click', () => toggleAuto());
+$('#speed').addEventListener('input', () => {
+  $('#speedVal').textContent = '≈' + (1000 / intervalOf()).toFixed(1) + ' steps/s';
+  if (autoOn) toggleAuto(true);
+});
+$('#swBarrier').addEventListener('change', e => {
+  barrierOn = e.target.checked;
+  log('stw', barrierOn
+    ? 'write barrier ON. Writes into black objects shade their white targets grey.'
+    : 'write barrier OFF — this is not Go any more, this is a crime scene. Run a cycle with the mutator…');
+  updatePhaseStatus();
+});
+$('#swMut').addEventListener('change', e => {
+  mutatorOn = e.target.checked;
+  clearInterval(mutTimer);
+  if (mutatorOn) { mutTimer = setInterval(mutatorTick, 1350); log('mut', 'mutator started: a goroutine allocates objects and rewrites pointers alongside the GC.'); }
+  else log('mut', 'mutator stopped.');
+});
+$('#btnAdd').addEventListener('click', () => {
+  const p = { x: 300 + Math.random() * 500, y: 100 + Math.random() * 380 };
+  addNodeAt(p, rnd(aliveHeap()) || null);
+});
+$('#btnExp').addEventListener('click', () => {
+  if (phase === 'sweep') return;
+  barrierOn = $('#swBarrier').checked;
+  if (phase === 'off') {
+    pendingExp = true;
+    log('stw', 'experiment: starting a cycle — waiting for a black object to show up…');
+    startCycle();
+  } else pendingExp = true;
+  if (!autoOn) toggleAuto(true);
+});
+$('#btnReset').addEventListener('click', buildHeap);
+
+/* ═══════════ boot ═══════════ */
+buildHeap();
+log('ok', 'Ready. The plan: 1) hit "Step" and watch the grey queue · 2) switch the mutator on · 3) switch the barrier off and run the experiment.');
+setStatus('No cycle running. The "Step" button turns on the write barrier, scans the roots — and then walks the marker through the heap one step at a time.');
+</script>
+</body>
+</html>
