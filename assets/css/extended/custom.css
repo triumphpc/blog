@@ -284,3 +284,29 @@ details .title::before {
   border-top: 1px solid var(--border);
   padding-top: calc((var(--footer-height) - var(--gap)) / 2);
 }
+/* ============================================================
+   Inline SVG diagrams
+   ============================================================ */
+.svg-diagram {
+  background: #0d0e12;
+  border: 1px solid #262a31;
+  border-radius: 8px;
+  padding: 18px 16px;
+  margin: 28px 0;
+  overflow-x: auto;
+}
+
+.svg-diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 480px;
+  height: auto;
+  font-family: var(--font-mono, 'JetBrains Mono'), ui-monospace, monospace;
+}
+
+.svg-diagram figcaption {
+  margin-top: 12px;
+  color: #8b90a0;
+  font-size: 0.82rem;
+  text-align: center;
+}

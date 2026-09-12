@@ -29,3 +29,6 @@ openspec/
 
 # opencode
 .opencode/
+
+# Playwright MCP
+.playwright-mcp/
